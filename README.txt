@@ -1,1 +1,1 @@
-To jest poprawiona wersja PWA. Wrzuć wszystkie pliki z tego folderu do repozytorium GitHub Pages w katalogu głównym.
+To jest poprawiona wersja PWA v2. Wrzuć wszystkie pliki z tego folderu do repozytorium GitHub Pages w katalogu głównym.

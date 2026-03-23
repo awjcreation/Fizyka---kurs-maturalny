@@ -196,6 +196,12 @@
       color:var(--muted);
     }
     .hidden{display:none !important}
+    
+    .exam-on{
+      background:#fff7ed !important;
+      color:#9a3412 !important;
+    }
+
     @media (max-width: 760px){
       .wrap{padding:14px}
       .stats{grid-template-columns:repeat(2,1fr)}
@@ -209,9 +215,8 @@
     <section class="card hero">
       <h1>Quiz z fizyki – pole elektryczne i kondensatory</h1>
       <p class="subtitle">
-        Quiz przygotowany na podstawie przesłanych materiałów o elektrostatyce, polu elektrycznym, potencjale,
-        napięciu, przewodnikach, dielektrykach i kondensatorach. Przy każdym uruchomieniu losowanych jest
-        <strong>25 pytań</strong> z banku <strong>40 pytań</strong>.
+        Quiz z elektrostatyki, pola elektrycznego, potencjału, napięcia, przewodników, dielektryków i kondensatorów.
+        Przy każdym uruchomieniu losowanych jest <strong>25 pytań</strong> z banku <strong>40 pytań</strong>.
       </p>
 
       <div class="stats">
@@ -223,6 +228,7 @@
 
       <div class="controls">
         <button class="primary" id="restartTop">Losuj nowy quiz</button>
+        <button class="secondary" id="examModeTop">Tryb egzaminu: WYŁ.</button>
         <button class="secondary" id="scrollTopBtn">Na początek</button>
       </div>
     </section>
@@ -238,6 +244,7 @@
       </p>
       <div class="controls">
         <button class="primary" id="restartBottom">Zagraj ponownie</button>
+        <button class="secondary" id="examModeBottom">Tryb egzaminu: WYŁ.</button>
         <button class="secondary" id="scrollUpBottom">Wróć na górę</button>
       </div>
     </section>
@@ -741,6 +748,8 @@
       finalText: document.getElementById('finalText'),
       restartTop: document.getElementById('restartTop'),
       restartBottom: document.getElementById('restartBottom'),
+      examModeTop: document.getElementById('examModeTop'),
+      examModeBottom: document.getElementById('examModeBottom'),
       scrollTopBtn: document.getElementById('scrollTopBtn'),
       scrollUpBottom: document.getElementById('scrollUpBottom')
     };
@@ -748,6 +757,23 @@
     let currentQuestions = [];
     let score = 0;
     let answeredCount = 0;
+    let examMode = false;
+
+
+    function syncExamButtons(){
+      const label = examMode ? "Tryb egzaminu: WŁ." : "Tryb egzaminu: WYŁ.";
+      [els.examModeTop, els.examModeBottom].forEach(btn => {
+        if(!btn) return;
+        btn.textContent = label;
+        btn.classList.toggle("exam-on", examMode);
+      });
+    }
+
+    function toggleExamMode(){
+      examMode = !examMode;
+      syncExamButtons();
+      renderQuiz();
+    }
 
     function shuffle(arr){
       const copy = [...arr];
@@ -791,7 +817,7 @@
       const percent = Math.round((score / QUESTION_COUNT) * 100);
       els.finalBadge.textContent = `Wynik: ${score}/${QUESTION_COUNT} (${percent}%)`;
       els.finalTitle.textContent = "Koniec quizu";
-      els.finalText.textContent = resultMessage(percent);
+      els.finalText.textContent = resultMessage(percent) + (examMode ? " Tryb egzaminu ukrywa wyjaśnienia do końca quizu." : "");
       els.summary.classList.add("show");
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
     }
@@ -843,10 +869,15 @@
             });
           }
 
-          explanation.classList.add("show");
+          if(!examMode){
+            explanation.classList.add("show");
+          }
           updateStats();
 
           if(answeredCount === QUESTION_COUNT){
+            if(examMode){
+              document.querySelectorAll('.explanation').forEach(el => el.classList.add('show'));
+            }
             finishQuiz();
           }
         });
@@ -878,9 +909,12 @@
 
     els.restartTop.addEventListener("click", renderQuiz);
     els.restartBottom.addEventListener("click", renderQuiz);
+    els.examModeTop.addEventListener("click", toggleExamMode);
+    els.examModeBottom.addEventListener("click", toggleExamMode);
     els.scrollTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     els.scrollUpBottom.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
+    syncExamButtons();
     renderQuiz();
   </script>
 </body>

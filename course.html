@@ -263,8 +263,6 @@ svg{
 
     <div class="controls">
       <button class="primary" id="startCourseBtn">Zacznij kurs</button>
-      <button class="secondary" id="openPracticeBtn">Przejdź do zadań krok po kroku</button>
-      <a class="buttonlike secondary" href="quiz_fizyka_pole_elektryczne.html">Otwórz quiz</a>
     </div>
 
     <div class="toc">
@@ -281,6 +279,7 @@ svg{
     </div>
   </section>
 
+  <div id="materialTop"></div>
   <section id="modules"></section>
 
   <section class="card practice" id="practiceSection">
@@ -785,7 +784,10 @@ function showOnlyCurrent(){
   updateHeader();
   hidePractice();
   summarySection.classList.remove('show');
-  window.scrollTo({top:0,behavior:'smooth'});
+  requestAnimationFrame(() => {
+    const el = document.getElementById(`module-${state.current}`);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  });
 }
 
 function goToModule(index){

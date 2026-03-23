@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zadania krok po kroku</title>
-<style>
+<!DOCTYPE html><html lang="pl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Zadania</title><style>
 :root{
   --bg:#f4f7fb;
   --card:#ffffff;
@@ -243,12 +237,7 @@ svg{
 
 .practice{display:block !important;}
 .summary{display:none !important;}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <section class="card practice show" id="practiceSection">
-    
+</style></head><body><div class="wrap"><section class="card practice show" id="practiceSection">
     <h2>Zadania obliczeniowe krok po kroku</h2>
     <p class="muted">Tutaj przechodzisz przez typowe zadania z tego działu. Każdy przykład ma rozwijane etapy rozwiązania.</p>
 
@@ -326,17 +315,7 @@ svg{
       <button class="primary" onclick="window.scrollTo({top:0,behavior:'smooth'})">Wróć na górę</button>
       <button class="secondary" onclick="hidePractice()">Ukryj zadania</button>
     </div>
-  
-  </section>
-</div>
-<script>
-function toggleReveal(id){
-  const el = document.getElementById(id);
-  if(el) el.classList.toggle('show');
-}
-function hidePractice(){
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-</script>
-</body>
-</html>
+  </section></div><script>
+function toggleReveal(id){ const el=document.getElementById(id); if(el) el.classList.toggle('show'); }
+function hidePractice(){ window.scrollTo({top:0, behavior:'smooth'}); }
+</script></body></html>
