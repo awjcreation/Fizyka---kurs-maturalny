@@ -1,1 +1,1 @@
-To jest poprawiona wersja PWA v2. Wrzuć wszystkie pliki z tego folderu do repozytorium GitHub Pages w katalogu głównym.
+Wgraj wszystkie pliki z tego folderu do katalogu głównego repozytorium GitHub Pages. styles.css jest wspólnym plikiem stylów.
