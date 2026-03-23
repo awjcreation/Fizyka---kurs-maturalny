@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz z fizyki – pole elektryczne i kondensatory</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#667085;
+      --accent:#335dff;
+      --accent-soft:#e8eeff;
+      --border:#d9e1f2;
+      --ok:#166534;
+      --ok-bg:#dcfce7;
+      --bad:#991b1b;
+      --bad-bg:#fee2e2;
+      --shadow:0 12px 28px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eef4ff 0%,var(--bg) 100%);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1050px;
+      margin:0 auto;
+      padding:24px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      padding:24px;
+      margin-bottom:18px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:2rem;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      line-height:1.5;
+    }
+    .stats{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+    }
+    .stat{
+      background:var(--accent-soft);
+      border-radius:16px;
+      padding:14px;
+      text-align:center;
+    }
+    .stat .label{
+      display:block;
+      color:var(--muted);
+      font-size:.92rem;
+      margin-bottom:6px;
+    }
+    .stat .value{
+      font-size:1.45rem;
+      font-weight:700;
+      color:var(--accent);
+    }
+    .controls{
+      margin-top:16px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    button{
+      border:none;
+      border-radius:14px;
+      padding:12px 18px;
+      font-size:1rem;
+      cursor:pointer;
+      transition:.15s transform ease, .15s opacity ease;
+    }
+    button:hover{transform:translateY(-1px)}
+    button:disabled{cursor:not-allowed; opacity:.7; transform:none}
+    .primary{
+      background:var(--accent);
+      color:#fff;
+    }
+    .secondary{
+      background:#eef2ff;
+      color:var(--accent);
+    }
+    #quiz{
+      display:grid;
+      gap:16px;
+    }
+    .question{
+      padding:20px;
+    }
+    .qhead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .badge{
+      font-size:.85rem;
+      color:var(--accent);
+      background:var(--accent-soft);
+      padding:5px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .qnum{
+      font-weight:700;
+      color:var(--accent);
+    }
+    .qtext{
+      margin:0 0 14px;
+      font-size:1.08rem;
+      font-weight:700;
+      line-height:1.45;
+    }
+    .answers{
+      display:grid;
+      gap:10px;
+    }
+    .answer{
+      width:100%;
+      text-align:left;
+      border:1px solid var(--border);
+      background:#fbfdff;
+      color:var(--text);
+      border-radius:14px;
+      padding:13px 14px;
+      font-size:1rem;
+    }
+    .answer.correct{
+      background:var(--ok-bg);
+      border-color:#86efac;
+      color:var(--ok);
+      font-weight:700;
+    }
+    .answer.wrong{
+      background:var(--bad-bg);
+      border-color:#fca5a5;
+      color:var(--bad);
+      font-weight:700;
+    }
+    .answer.reveal{
+      background:#eff6ff;
+      border-color:#93c5fd;
+      color:#1d4ed8;
+      font-weight:700;
+    }
+    .explanation{
+      display:none;
+      margin-top:14px;
+      padding:14px;
+      background:#f8fafc;
+      border:1px solid var(--border);
+      border-radius:14px;
+      line-height:1.55;
+      color:#334155;
+    }
+    .explanation.show{display:block}
+    .summary{
+      display:none;
+      margin-top:20px;
+      padding:24px;
+    }
+    .summary.show{display:block}
+    .result{
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      color:var(--accent);
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    .note{
+      color:var(--muted);
+    }
+    .hidden{display:none !important}
+    @media (max-width: 760px){
+      .wrap{padding:14px}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      h1{font-size:1.55rem}
+      .qhead{flex-direction:column; align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card hero">
+      <h1>Quiz z fizyki – pole elektryczne i kondensatory</h1>
+      <p class="subtitle">
+        Quiz przygotowany na podstawie przesłanych materiałów o elektrostatyce, polu elektrycznym, potencjale,
+        napięciu, przewodnikach, dielektrykach i kondensatorach. Przy każdym uruchomieniu losowanych jest
+        <strong>25 pytań</strong> z banku <strong>40 pytań</strong>.
+      </p>
+
+      <div class="stats">
+        <div class="stat"><span class="label">Wylosowane pytania</span><span class="value" id="totalCount">25</span></div>
+        <div class="stat"><span class="label">Punkty</span><span class="value" id="score">0</span></div>
+        <div class="stat"><span class="label">Odpowiedziano</span><span class="value" id="answered">0</span></div>
+        <div class="stat"><span class="label">Postęp</span><span class="value" id="progress">0%</span></div>
+      </div>
+
+      <div class="controls">
+        <button class="primary" id="restartTop">Losuj nowy quiz</button>
+        <button class="secondary" id="scrollTopBtn">Na początek</button>
+      </div>
+    </section>
+
+    <main id="quiz"></main>
+
+    <section class="card summary" id="summary">
+      <div class="result" id="finalBadge">Wynik</div>
+      <h2 id="finalTitle">Koniec quizu</h2>
+      <p id="finalText"></p>
+      <p class="note">
+        Przy kolejnym uruchomieniu pytania pojawią się w innej kolejności i zostanie wylosowany nowy zestaw 25 pytań.
+      </p>
+      <div class="controls">
+        <button class="primary" id="restartBottom">Zagraj ponownie</button>
+        <button class="secondary" id="scrollUpBottom">Wróć na górę</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const QUESTION_COUNT = 25;
+
+    const bank = [
+      {
+        level: "łatwe",
+        q: "1. W którą stronę są skierowane linie pola elektrycznego?",
+        answers: [
+          "Od ładunku dodatniego do ujemnego",
+          "Od ładunku ujemnego do dodatniego",
+          "Wzdłuż ruchu elektronów w każdym przypadku",
+          "Zawsze pionowo w dół"
+        ],
+        correct: 0,
+        exp: "Umownie linie pola wychodzą z ładunków dodatnich i kończą się na ujemnych. To kierunek działania siły na dodatni ładunek próbny."
+      },
+      {
+        level: "łatwe",
+        q: "2. Co opisuje natężenie pola elektrycznego E?",
+        answers: [
+          "Ile energii ma każdy elektron",
+          "Siłę przypadającą na jednostkowy ładunek dodatni",
+          "Ilość prądu w przewodniku",
+          "Liczbę linii pola"
+        ],
+        correct: 1,
+        exp: "Natężenie pola definiujemy jako E = F/q. Pokazuje ono, jaka siła działałaby na dodatni ładunek jednostkowy umieszczony w danym punkcie."
+      },
+      {
+        level: "średnie",
+        q: "3. Jednostką natężenia pola elektrycznego jest:",
+        answers: [
+          "N/C",
+          "J/C",
+          "C/N",
+          "A·s"
+        ],
+        correct: 0,
+        exp: "Natężenie pola mierzymy w niutonach na kulomb. Równoważnie można używać V/m, bo 1 V/m = 1 N/C."
+      },
+      {
+        level: "łatwe",
+        q: "4. Wzór na siłę działającą na ładunek q w polu elektrycznym ma postać:",
+        answers: [
+          "F = q/U",
+          "F = qE",
+          "F = EU²",
+          "F = k/r²"
+        ],
+        correct: 1,
+        exp: "Jeśli w punkcie pola natężenie wynosi E, to na ładunek q działa siła F = qE. Dla ładunku ujemnego zwrot siły jest przeciwny do linii pola."
+      },
+      {
+        level: "średnie",
+        q: "5. Prawo Coulomba mówi, że siła między dwoma ładunkami punktowymi:",
+        answers: [
+          "Rośnie proporcjonalnie do odległości",
+          "Maleje odwrotnie proporcjonalnie do odległości",
+          "Maleje odwrotnie proporcjonalnie do kwadratu odległości",
+          "Nie zależy od odległości"
+        ],
+        correct: 2,
+        exp: "Prawo Coulomba ma postać F = k·|q₁q₂|/r², więc zależność od odległości jest odwrotnie proporcjonalna do r²."
+      },
+      {
+        level: "średnie",
+        q: "6. Jeśli odległość między dwoma ładunkami zwiększymy 2 razy, to siła oddziaływania:",
+        answers: [
+          "Zmaleje 2 razy",
+          "Zmaleje 4 razy",
+          "Wzrośnie 2 razy",
+          "Nie zmieni się"
+        ],
+        correct: 1,
+        exp: "W prawie Coulomba występuje r². Po podwojeniu odległości mianownik rośnie 4 razy, więc siła maleje 4 razy."
+      },
+      {
+        level: "łatwe",
+        q: "7. Potencjał elektryczny to wielkość opisująca:",
+        answers: [
+          "Pracę przypadającą na jednostkowy ładunek",
+          "Natężenie prądu",
+          "Opór ośrodka",
+          "Liczbę elektronów w przewodniku"
+        ],
+        correct: 0,
+        exp: "Potencjał V informuje, jaka energia potencjalna przypada na jednostkowy ładunek. Jednostką potencjału jest wolt."
+      },
+      {
+        level: "łatwe",
+        q: "8. Napięcie elektryczne między dwoma punktami to:",
+        answers: [
+          "Iloczyn ładunku i czasu",
+          "Różnica potencjałów",
+          "Natężenie pola w każdym punkcie",
+          "Energia kinetyczna elektronów"
+        ],
+        correct: 1,
+        exp: "Napięcie U to różnica potencjałów między dwoma punktami. Mówi, ile pracy przypada na jednostkowy ładunek przy przesunięciu między tymi punktami."
+      },
+      {
+        level: "średnie",
+        q: "9. W jednorodnym polu elektrycznym między równoległymi okładkami kondensatora natężenie pola można obliczyć ze wzoru:",
+        answers: [
+          "E = U·d",
+          "E = U/d",
+          "E = q/d",
+          "E = kQ/r²"
+        ],
+        correct: 1,
+        exp: "W jednorodnym polu między okładkami kondensatora natężenie jest równe ilorazowi napięcia i odległości między okładkami: E = U/d."
+      },
+      {
+        level: "łatwe",
+        q: "10. W polu jednorodnym linie pola są:",
+        answers: [
+          "Równoległe i jednakowo gęste",
+          "Promieniste",
+          "Zakrzywione i losowo rozmieszczone",
+          "Zawsze okrężne"
+        ],
+        correct: 0,
+        exp: "Jednorodne pole ma w każdym miejscu to samo natężenie i ten sam kierunek, dlatego linie są równoległe i równomiernie rozmieszczone."
+      },
+      {
+        level: "średnie",
+        q: "11. W pobliżu pojedynczego ładunku punktowego pole elektryczne ma charakter:",
+        answers: [
+          "Jednorodny",
+          "Centralny",
+          "Magnetyczny",
+          "Zmienny okresowo"
+        ],
+        correct: 1,
+        exp: "Pole pojedynczego ładunku punktowego jest polem centralnym: linie pola rozchodzą się promieniście od ładunku dodatniego lub zbiegają do ujemnego."
+      },
+      {
+        level: "trudniejsze",
+        q: "12. Zasada superpozycji pól elektrycznych oznacza, że:",
+        answers: [
+          "Silniejsze pole usuwa słabsze",
+          "Wypadkowe pole jest sumą wektorową pól od wszystkich ładunków",
+          "Pola można dodawać tylko wtedy, gdy mają ten sam zwrot",
+          "Pole od wielu ładunków zawsze jest jednorodne"
+        ],
+        correct: 1,
+        exp: "Każdy ładunek wytwarza własne pole, a pole wypadkowe w danym punkcie jest sumą wektorową wszystkich tych pól."
+      },
+      {
+        level: "łatwe",
+        q: "13. Co dzieje się z nadmiarem ładunku na przewodniku w stanie równowagi elektrostatycznej?",
+        answers: [
+          "Rozkłada się równomiernie w całej objętości",
+          "Gromadzi się głównie na powierzchni",
+          "Znika po chwili",
+          "Przechodzi do ziemi bez względu na izolację"
+        ],
+        correct: 1,
+        exp: "W przewodniku swobodne ładunki przemieszczają się tak długo, aż osiągną stan równowagi. Wtedy nadmiar ładunku znajduje się na powierzchni."
+      },
+      {
+        level: "średnie",
+        q: "14. Wewnątrz przewodnika w równowadze elektrostatycznej natężenie pola elektrycznego jest:",
+        answers: [
+          "Największe przy środku",
+          "Stałe i dodatnie",
+          "Równe zero",
+          "Zależne od temperatury"
+        ],
+        correct: 2,
+        exp: "Gdyby wewnątrz przewodnika istniało pole, ładunki nadal by się poruszały. W stanie równowagi elektrostatycznej pole wewnątrz przewodnika jest zerowe."
+      },
+      {
+        level: "łatwe",
+        q: "15. Dielektryk to materiał, który:",
+        answers: [
+          "Dobrze przewodzi prąd dzięki swobodnym elektronom",
+          "Nie ma ładunków dodatnich",
+          "Jest izolatorem i może ulegać polaryzacji",
+          "Zawsze wzmacnia pole elektryczne"
+        ],
+        correct: 2,
+        exp: "Dielektryk jest izolatorem. Pod wpływem pola elektrycznego nie przewodzi jak metal, ale jego cząsteczki mogą ulec polaryzacji."
+      },
+      {
+        level: "średnie",
+        q: "16. Polaryzacja dielektryka polega na:",
+        answers: [
+          "Powstawaniu swobodnego przepływu elektronów przez cały materiał",
+          "Ustawianiu się ładunków lub dipoli w polu elektrycznym",
+          "Całkowitym zaniku pola elektrycznego",
+          "Zmianie znaku wszystkich ładunków"
+        ],
+        correct: 1,
+        exp: "W dielektryku cząsteczki lub atomy przesuwają nieznacznie swoje ładunki dodatnie i ujemne, tworząc uporządkowanie zgodne z polem."
+      },
+      {
+        level: "trudniejsze",
+        q: "17. Umieszczenie dielektryka między okładkami kondensatora powoduje zwykle:",
+        answers: [
+          "Zmniejszenie pojemności",
+          "Zwiększenie pojemności",
+          "Zanik napięcia niezależnie od źródła",
+          "Natychmiastowy przepływ prądu stałego przez izolator"
+        ],
+        correct: 1,
+        exp: "Dielektryk osłabia pole wytwarzane przez zgromadzone ładunki, dzięki czemu przy tym samym napięciu kondensator może zgromadzić większy ładunek, czyli ma większą pojemność."
+      },
+      {
+        level: "łatwe",
+        q: "18. Kondensator magazynuje przede wszystkim:",
+        answers: [
+          "Natężenie prądu",
+          "Energię w polu elektrycznym",
+          "Moc elektryczną",
+          "Rezystancję"
+        ],
+        correct: 1,
+        exp: "Kondensator gromadzi energię dzięki rozdzieleniu ładunków na okładkach. Energia jest zmagazynowana w polu elektrycznym między okładkami."
+      },
+      {
+        level: "średnie",
+        q: "19. Pojemność kondensatora określa wzór:",
+        answers: [
+          "C = U/Q",
+          "C = Q/U",
+          "C = E/d",
+          "C = qE"
+        ],
+        correct: 1,
+        exp: "Pojemność mówi, jaki ładunek Q zgromadzi kondensator przy napięciu U. Z definicji C = Q/U."
+      },
+      {
+        level: "trudniejsze",
+        q: "20. Jednostką pojemności elektrycznej jest:",
+        answers: [
+          "wolt",
+          "farad",
+          "kulomb",
+          "om"
+        ],
+        correct: 1,
+        exp: "Jednostką pojemności jest farad (F). 1 F oznacza pojemność kondensatora, który przy napięciu 1 V gromadzi ładunek 1 C."
+      },
+      {
+        level: "średnie",
+        q: "21. Jeśli napięcie przyłożone do kondensatora wzrośnie 2 razy, a pojemność się nie zmieni, to zgromadzony ładunek:",
+        answers: [
+          "Zmaleje 2 razy",
+          "Wzrośnie 2 razy",
+          "Wzrośnie 4 razy",
+          "Nie zmieni się"
+        ],
+        correct: 1,
+        exp: "Ponieważ Q = C·U, przy stałej pojemności ładunek jest wprost proporcjonalny do napięcia."
+      },
+      {
+        level: "trudniejsze",
+        q: "22. Energia zgromadzona w kondensatorze jest opisana zależnością:",
+        answers: [
+          "E = C/U",
+          "E = 1/2 · C · U²",
+          "E = q/U²",
+          "E = F·r²"
+        ],
+        correct: 1,
+        exp: "Energia kondensatora rośnie z pojemnością i z kwadratem napięcia. To dlatego zwiększanie napięcia silnie zwiększa energię."
+      },
+      {
+        level: "łatwe",
+        q: "23. Czy przez idealny kondensator płynie prąd stały po całkowitym naładowaniu?",
+        answers: [
+          "Tak, stale",
+          "Nie, po naładowaniu prąd zanika",
+          "Tak, ale tylko przez dielektryk",
+          "Zależy wyłącznie od temperatury"
+        ],
+        correct: 1,
+        exp: "Podczas ładowania kondensatora prąd płynie chwilowo. Po osiągnięciu ustalonego napięcia w idealnym obwodzie przepływ prądu stałego zanika."
+      },
+      {
+        level: "średnie",
+        q: "24. Dlaczego kondensator w obwodach może „przepuszczać” prąd zmienny?",
+        answers: [
+          "Bo elektrony przeskakują przez dielektryk",
+          "Bo napięcie zmienia się w czasie, więc kondensator stale ładuje się i rozładowuje",
+          "Bo pojemność zamienia się w opór",
+          "Bo pole elektryczne znika"
+        ],
+        correct: 1,
+        exp: "Przy prądzie zmiennym kondensator nieustannie zmienia stan naładowania. To powoduje przepływ ładunku w obwodzie mimo braku przepływu przez sam dielektryk."
+      },
+      {
+        level: "łatwe",
+        q: "25. Elektroskop służy do:",
+        answers: [
+          "Pomiaru natężenia prądu",
+          "Wykrywania obecności ładunku elektrycznego",
+          "Pomiaru napięcia w gniazdku",
+          "Ładowania kondensatorów"
+        ],
+        correct: 1,
+        exp: "Elektroskop pozwala stwierdzić, czy ciało jest naelektryzowane. Wychylenie listków lub wskazówki wynika z odpychania jednakowych ładunków."
+      },
+      {
+        level: "średnie",
+        q: "26. Zasada zachowania ładunku mówi, że w układzie izolowanym:",
+        answers: [
+          "Ładunek może powstawać z niczego",
+          "Suma ładunków pozostaje stała",
+          "Ładunek dodatni zanika szybciej niż ujemny",
+          "Ładunek zawsze przechodzi do ziemi"
+        ],
+        correct: 1,
+        exp: "Ładunek elektryczny nie znika i nie powstaje samorzutnie. Może być jedynie przenoszony między ciałami."
+      },
+      {
+        level: "łatwe",
+        q: "27. Ciało naelektryzowane dodatnio ma:",
+        answers: [
+          "Nadmiar elektronów",
+          "Niedobór elektronów",
+          "Tyle samo protonów co elektronów i brak oddziaływań",
+          "Zawsze większą masę"
+        ],
+        correct: 1,
+        exp: "Dodatnie naelektryzowanie oznacza utratę części elektronów. To nie liczba protonów się zmienia, lecz liczba elektronów."
+      },
+      {
+        level: "łatwe",
+        q: "28. Ciała naładowane ładunkami różnoimiennymi:",
+        answers: [
+          "Odpychają się",
+          "Przyciągają się",
+          "Nie oddziałują",
+          "Zawsze się neutralizują bez dotknięcia"
+        ],
+        correct: 1,
+        exp: "Ładunki różnoimienne przyciągają się, a jednoimienne odpychają. To podstawowa zasada oddziaływań elektrostatycznych."
+      },
+      {
+        level: "średnie",
+        q: "29. Praca wykonana przy przesunięciu ładunku w polu elektrycznym jest związana z:",
+        answers: [
+          "Różnicą potencjałów między punktami",
+          "Wyłącznie z masą ładunku",
+          "Kolorem przewodnika",
+          "Tylko z kształtem przewodu"
+        ],
+        correct: 0,
+        exp: "Napięcie między dwoma punktami mówi, jaka praca przypada na jednostkowy ładunek przy jego przesunięciu w polu."
+      },
+      {
+        level: "trudniejsze",
+        q: "30. Powierzchnie ekwipotencjalne to powierzchnie, na których:",
+        answers: [
+          "Natężenie pola jest równe zero",
+          "Potencjał ma tę samą wartość",
+          "Nie istnieją żadne ładunki",
+          "Zawsze płynie prąd"
+        ],
+        correct: 1,
+        exp: "Na powierzchni ekwipotencjalnej potencjał jest stały. Przesuwanie ładunku po takiej powierzchni nie wymaga pracy."
+      },
+      {
+        level: "trudniejsze",
+        q: "31. Linie pola elektrycznego i powierzchnie ekwipotencjalne przecinają się:",
+        answers: [
+          "Pod kątem 45°",
+          "Równolegle",
+          "Prostopadle",
+          "Nigdy się nie przecinają"
+        ],
+        correct: 2,
+        exp: "Pole elektryczne wskazuje kierunek najszybszej zmiany potencjału, więc linie pola są prostopadłe do powierzchni ekwipotencjalnych."
+      },
+      {
+        level: "średnie",
+        q: "32. Jeśli na dodatni ładunek próbny działa siła zgodna z kierunkiem pola, to na ładunek ujemny w tym samym miejscu działa siła:",
+        answers: [
+          "W tym samym kierunku",
+          "W kierunku przeciwnym",
+          "Zawsze równa zero",
+          "Niezależna od wartości ładunku"
+        ],
+        correct: 1,
+        exp: "Ze wzoru F = qE wynika, że znak ładunku decyduje o zwrocie siły. Dla ładunku ujemnego zwrot jest przeciwny do wektora pola."
+      },
+      {
+        level: "trudniejsze",
+        q: "33. Dwa jednakowe ładunki punktowe zwiększono oba 3 razy. Siła oddziaływania między nimi przy tej samej odległości:",
+        answers: [
+          "Wzrośnie 3 razy",
+          "Wzrośnie 6 razy",
+          "Wzrośnie 9 razy",
+          "Nie zmieni się"
+        ],
+        correct: 2,
+        exp: "Prawo Coulomba zawiera iloczyn q₁q₂. Jeśli każdy ładunek wzrasta 3 razy, iloczyn rośnie 9 razy."
+      },
+      {
+        level: "średnie",
+        q: "34. W polu jednorodnym na ładunek działa siła:",
+        answers: [
+          "O stałej wartości, jeśli ładunek jest stały",
+          "Zawsze rosnąca z odległością",
+          "Zawsze malejąca z odległością",
+          "Równa zero"
+        ],
+        correct: 0,
+        exp: "W polu jednorodnym natężenie E ma stałą wartość. Dla ustalonego ładunku q siła F = qE również ma stałą wartość."
+      },
+      {
+        level: "trudniejsze",
+        q: "35. Dlaczego ostre zakończenia przewodników ułatwiają gromadzenie się dużych gęstości ładunku?",
+        answers: [
+          "Bo mają większą masę",
+          "Bo w ich pobliżu pole elektryczne jest silniejsze",
+          "Bo zmniejszają liczbę elektronów",
+          "Bo zawsze są uziemione"
+        ],
+        correct: 1,
+        exp: "Na ostrych końcach promień krzywizny jest mały, dlatego gęstość powierzchniowa ładunku i natężenie pola są tam większe."
+      },
+      {
+        level: "średnie",
+        q: "36. Jeżeli między okładkami kondensatora zwiększymy odległość, a pozostałe warunki zostaną bez zmian, to pojemność kondensatora płaskiego:",
+        answers: [
+          "Wzrośnie",
+          "Zmaleje",
+          "Nie zmieni się",
+          "Najpierw wzrośnie, potem zmaleje"
+        ],
+        correct: 1,
+        exp: "Dla kondensatora płaskiego pojemność jest odwrotnie proporcjonalna do odległości między okładkami. Większa odległość oznacza mniejszą pojemność."
+      },
+      {
+        level: "średnie",
+        q: "37. Która wielkość najlepiej opisuje zdolność kondensatora do gromadzenia ładunku?",
+        answers: [
+          "Moc",
+          "Natężenie prądu",
+          "Pojemność",
+          "Opór"
+        ],
+        correct: 2,
+        exp: "Im większa pojemność, tym większy ładunek może zgromadzić kondensator przy tym samym napięciu."
+      },
+      {
+        level: "trudniejsze",
+        q: "38. Jeżeli potencjał w pewnym punkcie pola jest większy niż w drugim, to dodatni ładunek pozostawiony swobodnie będzie miał tendencję do ruchu:",
+        answers: [
+          "Ku wyższemu potencjałowi",
+          "Ku niższemu potencjałowi",
+          "Wyłącznie poziomo",
+          "Tylko po okręgu"
+        ],
+        correct: 1,
+        exp: "Dodatni ładunek porusza się samorzutnie w kierunku malejącego potencjału, bo wtedy maleje jego energia potencjalna."
+      },
+      {
+        level: "trudniejsze",
+        q: "39. Zależność I = C·dU/dt dla kondensatora oznacza, że:",
+        answers: [
+          "Prąd jest tym większy, im szybciej zmienia się napięcie",
+          "Prąd zależy tylko od wartości napięcia, nie od jego zmian",
+          "Kondensator przewodzi prąd stały bez ograniczeń",
+          "Pojemność zanika przy napięciu zmiennym"
+        ],
+        correct: 0,
+        exp: "Prąd kondensatora zależy od szybkości zmian napięcia. Dlatego kondensator reaguje na zmiany, a nie na samą stałą wartość napięcia."
+      },
+      {
+        level: "średnie",
+        q: "40. Najbardziej trafne dokończenie zdania: „Kondensator to element, który...”",
+        answers: [
+          "zawsze zwiększa natężenie prądu",
+          "magazynuje energię dzięki rozdzieleniu ładunków",
+          "działa tak samo jak rezystor",
+          "wytwarza ładunki elektryczne"
+        ],
+        correct: 1,
+        exp: "Istotą działania kondensatora jest zgromadzenie przeciwnych ładunków na okładkach i magazynowanie energii w polu elektrycznym."
+      }
+    ];
+
+    const els = {
+      quiz: document.getElementById('quiz'),
+      score: document.getElementById('score'),
+      answered: document.getElementById('answered'),
+      progress: document.getElementById('progress'),
+      totalCount: document.getElementById('totalCount'),
+      summary: document.getElementById('summary'),
+      finalBadge: document.getElementById('finalBadge'),
+      finalTitle: document.getElementById('finalTitle'),
+      finalText: document.getElementById('finalText'),
+      restartTop: document.getElementById('restartTop'),
+      restartBottom: document.getElementById('restartBottom'),
+      scrollTopBtn: document.getElementById('scrollTopBtn'),
+      scrollUpBottom: document.getElementById('scrollUpBottom')
+    };
+
+    let currentQuestions = [];
+    let score = 0;
+    let answeredCount = 0;
+
+    function shuffle(arr){
+      const copy = [...arr];
+      for(let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function pickQuestions(){
+      return shuffle(bank).slice(0, QUESTION_COUNT).map((q, idx) => {
+        const indexed = q.answers.map((text, i) => ({ text, isCorrect: i === q.correct }));
+        const mixed = shuffle(indexed);
+        return {
+          ...q,
+          displayNumber: idx + 1,
+          mixedAnswers: mixed,
+          solved: false
+        };
+      });
+    }
+
+    function updateStats(){
+      els.score.textContent = score;
+      els.answered.textContent = answeredCount;
+      const pct = Math.round((answeredCount / QUESTION_COUNT) * 100);
+      els.progress.textContent = pct + "%";
+      els.totalCount.textContent = QUESTION_COUNT;
+    }
+
+    function resultMessage(percent){
+      if(percent === 100) return "Mistrzowski wynik — znasz ten dział naprawdę bardzo dobrze.";
+      if(percent >= 88) return "Bardzo mocny wynik. Świetne opanowanie pojęć i wzorów.";
+      if(percent >= 72) return "Dobry wynik. Warto jeszcze powtórzyć trudniejsze zależności i definicje.";
+      if(percent >= 52) return "Średni wynik. Masz podstawy, ale przyda się jeszcze jedna powtórka.";
+      return "To dobry moment na spokojne powtórzenie materiału i ponowne podejście do quizu.";
+    }
+
+    function finishQuiz(){
+      const percent = Math.round((score / QUESTION_COUNT) * 100);
+      els.finalBadge.textContent = `Wynik: ${score}/${QUESTION_COUNT} (${percent}%)`;
+      els.finalTitle.textContent = "Koniec quizu";
+      els.finalText.textContent = resultMessage(percent);
+      els.summary.classList.add("show");
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
+    function createQuestionCard(question){
+      const card = document.createElement("section");
+      card.className = "card question";
+
+      const head = document.createElement("div");
+      head.className = "qhead";
+      head.innerHTML = `
+        <div class="qnum">Pytanie ${question.displayNumber}</div>
+        <div class="badge">Poziom: ${question.level}</div>
+      `;
+
+      const qtext = document.createElement("p");
+      qtext.className = "qtext";
+      qtext.textContent = question.q;
+
+      const answers = document.createElement("div");
+      answers.className = "answers";
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation";
+      explanation.innerHTML = `<strong>Wyjaśnienie:</strong> ${question.exp}`;
+
+      question.mixedAnswers.forEach(ans => {
+        const btn = document.createElement("button");
+        btn.className = "answer";
+        btn.textContent = ans.text;
+
+        btn.addEventListener("click", () => {
+          if(question.solved) return;
+          question.solved = true;
+          answeredCount++;
+
+          const allButtons = answers.querySelectorAll("button");
+          allButtons.forEach(b => b.disabled = true);
+
+          if(ans.isCorrect){
+            score++;
+            btn.classList.add("correct");
+          } else {
+            btn.classList.add("wrong");
+            allButtons.forEach((b, idx) => {
+              if(question.mixedAnswers[idx].isCorrect){
+                b.classList.add("reveal");
+              }
+            });
+          }
+
+          explanation.classList.add("show");
+          updateStats();
+
+          if(answeredCount === QUESTION_COUNT){
+            finishQuiz();
+          }
+        });
+
+        answers.appendChild(btn);
+      });
+
+      card.appendChild(head);
+      card.appendChild(qtext);
+      card.appendChild(answers);
+      card.appendChild(explanation);
+      return card;
+    }
+
+    function renderQuiz(){
+      score = 0;
+      answeredCount = 0;
+      currentQuestions = pickQuestions();
+      els.quiz.innerHTML = "";
+      els.summary.classList.remove("show");
+
+      currentQuestions.forEach(q => {
+        els.quiz.appendChild(createQuestionCard(q));
+      });
+
+      updateStats();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    els.restartTop.addEventListener("click", renderQuiz);
+    els.restartBottom.addEventListener("click", renderQuiz);
+    els.scrollTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    els.scrollUpBottom.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+    renderQuiz();
+  </script>
+</body>
+</html>
